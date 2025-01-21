@@ -77,17 +77,18 @@ if st.session_state["authentication_status"]:
         st.image(image, width=300)
 
     # Send e-mail to Gemini for analysis
-    if st.button("Ver", type="primary") and key and image is not None:
-        genai.configure(api_key=key)
-        image = PIL.Image.open(image)
-        response = model.generate_content(
-            [image, prompt]
-        )
-        st.write(response.text)
-    elif not key:
-        st.error("Por favor, insira a Key")
-    elif image is None:
-        st.error("Por favor, insira a Imagem")
+    if st.button("Ver", type="primary"):
+        if key and image is not None:
+            genai.configure(api_key=key)
+            image = PIL.Image.open(image)
+            response = model.generate_content(
+                [image, prompt]
+            )
+            st.write(response.text)
+        elif not key:
+            st.error("Por favor, insira a Key")
+        elif image is None:
+            st.error("Por favor, insira a Imagem")
 elif st.session_state["authentication_status"] is False:
     st.error('Username/password está incorreto')
 elif st.session_state["authentication_status"] is None:
