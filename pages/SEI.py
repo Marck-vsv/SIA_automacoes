@@ -47,6 +47,7 @@ def get_filename_without_extension(file_path):
 def login(user, password, organ="SEPLAN-PI"):
     url = "https://api.sead.pi.gov.br/sei/v1/orgaos/usuarios/login"
     headers = {"accept": "application/json", "Content-Type": "application/json"}
+
     data = json.dumps({"Usuario": user, "Senha": password, "Orgao": organ})
     response = requests.post(url, headers=headers, data=data)
     response.raise_for_status()
@@ -95,7 +96,7 @@ def download_document(document_id, token, id_organ):
     headers = {"accept": "application/octet-stream", "token": token}
     response = requests.get(url, headers=headers, stream=True)
     response.raise_for_status()
-    response.encoding = 'utf-8'  # Garante que o conteúdo está em UTF-8
+    response.encoding = "utf-8"  # Garante que o conteúdo está em UTF-8
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, "html.parser")
         html_content = soup.get_text(separator="\n", strip=True)
@@ -106,10 +107,12 @@ def download_document(document_id, token, id_organ):
 def sei_document_summarize(process_id: str, token: str, id_organ: str):
     process_id = process_id.replace(".", "").replace("/", "").replace("-", "")
 
-    prompt = ["""- Analise os documentos a seguir.
+    prompt = [
+        """- Analise os documentos a seguir.
 - Escreva um resumo de 2 parágrafos.
 - Verifique se o processo chegou ao fim.
-    - Se chegou ao fim, escreva um parágrafo explicando porque foi aprovado ou reprovado."""]
+    - Se chegou ao fim, escreva um parágrafo explicando porque foi aprovado ou reprovado."""
+    ]
 
     df_documents = get_documents(process_id, token, id_organ)
     for i, row in df_documents.iterrows():
@@ -119,7 +122,9 @@ def sei_document_summarize(process_id: str, token: str, id_organ: str):
             prompt.append(content)
 
             # Exibe o resultado (opcional)
-            st.markdown(f'{row["data"]} - [{row["nome"]}]({row["url"]}) ({row["sigla"]})')
+            st.markdown(
+                f'{row["data"]} - [{row["nome"]}]({row["url"]}) ({row["sigla"]})'
+            )
             # st.markdown(content.replace("\n", "  \n"))
 
         except Exception as e:
@@ -149,6 +154,7 @@ if st.session_state.get("authentication_status", None) is None:
         submitted = st.form_submit_button("Login")
         if submitted:
             st.session_state["authentication_status"] = True
+
             token, id_organ = login(user, password, organ)
             genai.configure(api_key=key)
             st.session_state["token"] = token
@@ -162,7 +168,9 @@ elif st.session_state["authentication_status"]:
     if st.button("Upload"):
         if documents_text:
             st.divider()
-            response = sei_document_summarize(documents_text, st.session_state["token"], st.session_state["id_organ"])
+            response = sei_document_summarize(
+                documents_text, st.session_state["token"], st.session_state["id_organ"]
+            )
             st.divider()
             st.markdown(response)
 
