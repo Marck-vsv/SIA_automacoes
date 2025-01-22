@@ -1,4 +1,3 @@
 google-generativeai
 beautifulsoup4
-streamlit-authenticator
 pillow

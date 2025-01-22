@@ -1,7 +1,5 @@
 import streamlit as st
-import streamlit_authenticator as stauth
 import google.generativeai as genai
-import os
 import yaml
 from yaml.loader import SafeLoader
 import PIL.Image
@@ -49,47 +47,35 @@ prompt = """Crie um caption para a imagem seguindo essa orientação:
 • Elimine pleonasmos
 • Descreva apenas o que tiver certeza"""
 
-# Load authenticator
-credentials_path = '.streamlit/credentials.yaml'
-with open(credentials_path) as file:
-    config = yaml.load(file, Loader=SafeLoader)
+st.write("# #PraTodosVerem 😎")
 
-authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days'],
-)
+st.write("Esta é uma ferramenta para ajudar pessoas com deficiência visual a apreciarem imagens.")
 
-authenticator.login()
+# Get user gemini api key
+st.info("Encontre a Key [AQUI](https://aistudio.google.com/app/apikey)")
+key = st.text_input("Gemini API Key:")
 
-with open(credentials_path, 'w') as file:
-    yaml.dump(config, file, default_flow_style=False)
+# Load image from file and display it
+image = st.file_uploader("Carregue uma Imagem", type=["jpg", "jpeg", "png"])
+if image is not None:
+    st.image(image, width=300)
 
-if st.session_state["authentication_status"]:
-    # Get user gemini api key
-    st.info("Encontre a Key [AQUI](https://aistudio.google.com/app/apikey)")
-    key = st.text_input("Gemini API Key:")
+button = st.button("Ver", type="primary")
 
-    # Load image from file and display it
-    image = st.file_uploader("Carregue uma Imagem", type=["jpg", "jpeg", "png"])
-    if image is not None:
-        st.image(image, width=300)
+st.write("## Descrição")
 
-    # Send e-mail to Gemini for analysis
-    if st.button("Ver", type="primary"):
-        if key and image is not None:
-            genai.configure(api_key=key)
-            image = PIL.Image.open(image)
-            response = model.generate_content(
-                [image, prompt]
-            )
-            st.write(response.text)
-        elif not key:
-            st.error("Por favor, insira a Key")
-        elif image is None:
-            st.error("Por favor, insira a Imagem")
-elif st.session_state["authentication_status"] is False:
-    st.error('Username/password está incorreto')
-elif st.session_state["authentication_status"] is None:
-    st.warning('Por favor, entre Username e Password')
+# Send e-mail to Gemini for analysis
+if button:
+    if key and image is not None:
+        genai.configure(api_key=key)
+        image = PIL.Image.open(image)
+        response = model.generate_content(
+            [image, prompt]
+        )
+        st.write(response.text)
+    elif not key:
+        st.error("Por favor, insira a Key")
+    elif image is None:
+        st.error("Por favor, insira a Imagem")
+else:
+    st.write("(A descrição vai aparecer aqui)")
