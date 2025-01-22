@@ -1,4 +1,4 @@
 google-generativeai
 beautifulsoup4
 pillow
-yaml
+PyYAML
