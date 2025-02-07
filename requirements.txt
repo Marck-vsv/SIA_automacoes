@@ -2,3 +2,6 @@ google-generativeai
 beautifulsoup4
 pillow
 PyYAML
+streamlit
+requests
+pillow
